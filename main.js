@@ -1,7 +1,8 @@
-const inFile = 'text8.txt';
 const maxDepth = 16;
+const maxInputLength = 6e6;
 
-const fs = require('fs').promises;
+const fs = require('fs');
+const path = require('path');
 const root = { children: [], count: 0 };
 
 async function main() {
@@ -11,6 +12,7 @@ async function main() {
 }
 
 function showStats() {
+	console.log('computing stats...');
 	const numNodes = [];
 	const sumCounts = [];
 	recurse(root);
@@ -36,13 +38,47 @@ function showStats() {
 	}
 }
 
-async function buildTree() {
-	let inText = (await fs.readFile(`in/${inFile}`)).toString();
+function getAllTxtFiles(dir) {
+	const results = [];
+	const list = fs.readdirSync(dir);
+	list.forEach((file) => {
+		const filePath = path.join(dir, file);
+		const stat = fs.statSync(filePath);
+		if (stat.isDirectory()) {
+			results.push(...getAllTxtFiles(filePath));
+		} else if (path.extname(filePath) === '.txt') {
+			results.push(filePath);
+		}
+	});
+	return results;
+}
 
-	// console.log('inText.length', inText.length);
-	inText = inText.substring(0, 4e6);
-	fs.writeFile('in/text4M.txt', inText);
-	// console.log('inText', inText);
+async function readInput() {
+	const txtFiles = getAllTxtFiles('in/OANC-GrAF/data/written_1');
+
+	let inText = '';
+	for (filePath of txtFiles) {
+		console.log('Reading file:', filePath);
+		inText += fs.readFileSync(filePath, 'utf8');
+		if (inText.length >= maxInputLength) {
+			break;
+		}
+	}
+
+	inText = inText
+		.substring(0, maxInputLength)
+		.replace(/\t/g, ' ')
+		.replace(/\s+/g, ' ');
+
+	// const inText = (await fs.readFile('in/text8.txt'))
+	// 	.toString()
+	// 	.substring(0, maxInputLength);
+	// // fs.writeFile('in/text4M.txt', inText);
+	return inText;
+}
+
+async function buildTree() {
+	const inText = await readInput();
 
 	const window = [];
 	let i = 0;
@@ -61,8 +97,8 @@ async function buildTree() {
 					((100 * i) / inText.length).toFixed(2) +
 					'%'
 			);
-			const mb = process.memoryUsage().heapUsed >> 20;
-			console.log('Memory used:', mb, 'MB');
+			const mb = process.memoryUsage().heapUsed / (1 << 20);
+			console.log('Memory used:', mb.toFixed(1), 'MB');
 			// console.log(JSON.stringify(root));
 		}
 	}

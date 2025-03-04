@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cesHeader xmlns="http://www.xces.org/ns/GrAF/1.0/" creator="KBS" date.created="2010-02-17"
+           date.updated="2010-03-09"
+           version="1.0.4">
+    <fileDesc>
+        <titleStmt>
+        	<title>503C-L086</title>
+        </titleStmt>
+        <extent wordCount="354"/>
+      <sourceDesc>
+         <title>ICIC Corpus of Philanthropic Fundraising Discourse</title>
+         <publisher>ICIC</publisher>
+         <pubAddress>620 Union Drive, Room 407, Indianapolis, Indiana 46202, U.S.A.</pubAddress>
+         <email>icic@iupui.edu</email>
+         <url>www.iupui.edu/~icic</url>
+         <pubDate>2004</pubDate>
+      </sourceDesc>
+   </fileDesc>
+   <profileDesc>
+      <langUsage>
+         <language iso639="en-us">English (United States)</language>
+      </langUsage>
+      <wsdUsage>
+         <writingSystem id="UTF-8">8-bit UCS/Unicode Transformation Format</writingSystem>
+      </wsdUsage>
+      <!-- catRef types DEFINED IN MAIN HEADER --><textClass catRef="WR LT">
+         <domain type="philanthropic fundraising discourse"/>
+         <factuality type="nonfiction"/>
+         <preparedness type="prepared"/>
+         <purpose type="fundraising"/>
+      </textClass>
+      <!-- MEDIUM DEFINED IN MAIN HEADER --><primaryData loc="503C-L086.txt" medium="text"/>
+      <annotations>
+            <annotation ann.loc="503C-L086-logical.xml" type="logical">Logical markup</annotation>
+            <annotation ann.loc="503C-L086-s.xml" type="s">Sentence boundaries</annotation>
+            <annotation ann.loc="503C-L086-hepple.xml" type="hepple">Hepple POS tags</annotation>
+            <annotation ann.loc="503C-L086-np.xml" type="np">Noun chunks</annotation>
+            <annotation ann.loc="503C-L086-vp.xml" type="vp">Verb chunks</annotation>
+            <annotation ann.loc="503C-L086.txt" type="content">Document content</annotation>
+        </annotations>
+    </profileDesc>
+</cesHeader>

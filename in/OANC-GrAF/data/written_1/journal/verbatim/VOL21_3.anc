@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cesHeader xmlns="http://www.xces.org/ns/GrAF/1.0/" creator="KBS" date.created="2005-9-27" version="1.0.4">
+    <fileDesc>
+        <titleStmt>
+            <title>VOL21_3</title>
+        </titleStmt>
+        <extent wordCount="17886"/>
+        <sourceDesc>
+            <title>Verbatim: The Language Quarterly</title>
+            <publisher type="org">Verbatim</publisher>
+            <edition>Volume 21, Number 3</edition>
+            <pubDate value="2006-00-00">Summer, 2006</pubDate>
+            <pubPlace>http://verbatimmag.com/</pubPlace>
+        </sourceDesc>
+    </fileDesc>
+    <profileDesc>
+        <textClass catRef="WR JO">
+            <domain>Social Science</domain>
+            <subdomain>Linguistics</subdomain>
+            <subject>Language</subject>
+            <audience>Adult</audience>
+            <medium>Journal</medium>
+        </textClass>
+        <primaryData loc="VOL21_3.txt" medium="text"/>
+        <annotations>
+            <annotation ann.loc="VOL21_3-logical.xml" type="logical">Logical markup</annotation>
+            <annotation ann.loc="VOL21_3-s.xml" type="s">Sentence boundaries</annotation>
+            <annotation ann.loc="VOL21_3-hepple.xml" type="hepple">Hepple POS tags</annotation>
+            <annotation ann.loc="VOL21_3-np.xml" type="np">Noun chunks</annotation>
+            <annotation ann.loc="VOL21_3-vp.xml" type="vp">Verb chunks</annotation>
+            <annotation ann.loc="VOL21_3.txt" type="content">Document content</annotation>
+        </annotations>
+    </profileDesc>
+</cesHeader>
