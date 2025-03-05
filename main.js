@@ -170,7 +170,11 @@ function randomChild(node) {
 	let i = 0;
 	while (sum < r) {
 		const child = node.children[i++];
-		sum += child.count;
+		if (child) {
+			sum += child.count;
+		} else {
+			break;
+		}
 	}
 	return node.children[i - 1];
 }
