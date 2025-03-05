@@ -4,8 +4,9 @@ const maxInputLength = 2e9;
 const fs = require('fs');
 const path = require('path');
 const root = { children: [], count: 0 };
-let numNodes = 1;
 let initMem;
+const numNodes = [];
+const sumCounts = [];
 
 async function main() {
 	await buildTree();
@@ -14,29 +15,30 @@ async function main() {
 }
 
 function showStats() {
-	console.log('computing stats...');
-	const numNodes = [];
-	const sumCounts = [];
-	recurse(root);
+	// console.log('computing stats...');
+	// const numNodes = [];
+	// const sumCounts = [];
+	// recurse(root);
 
-	function recurse(node, depth = 0) {
-		numNodes[depth] = (numNodes[depth] || 0) + 1;
-		sumCounts[depth] = (sumCounts[depth] || 0) + node.count;
-		if (node.children.length) {
-			for (const child of node.children) {
-				recurse(child, depth + 1);
-			}
-		}
-	}
+	// function recurse(node, depth = 0) {
+	// 	numNodes[depth] = (numNodes[depth] || 0) + 1;
+	// 	sumCounts[depth] = (sumCounts[depth] || 0) + node.count;
+	// 	if (node.children.length) {
+	// 		for (const child of node.children) {
+	// 			recurse(child, depth + 1);
+	// 		}
+	// 	}
+	// }
 
 	// console.log('numNodes', numNodes);
 	// console.log('sumCounts', sumCounts);
+	const meanCounts = [];
 	for (let i = 0; i < numNodes.length; i++) {
-		sumCounts[i] /= numNodes[i];
+		meanCounts[i] = sumCounts[i] / numNodes[i];
 	}
 	console.log('mean counts:');
-	for (let i = 0; i < sumCounts.length; i++) {
-		console.log(`level ${i}: ${sumCounts[i]}`);
+	for (const mean of meanCounts) {
+		console.log(`level ${i}: ${mean.toFixed(2)}`);
 	}
 }
 
@@ -83,8 +85,16 @@ async function buildTree() {
 	const inText = await readInput();
 	initMem = process.memoryUsage().heapUsed;
 
-	const window = [];
+	for (let i = 0; i < maxDepth; i++) {
+		numNodes[i] = 0;
+	}
+
 	let i = 0;
+	const memIntervalId = setInterval(() => {
+		showMem(i);
+	}, 20 * 1000);
+
+	const window = [];
 	for (const char of inText) {
 		if (window.length >= maxDepth) {
 			window.shift();
@@ -93,29 +103,15 @@ async function buildTree() {
 
 		addToTree(window);
 		i++;
-		if (i % 1e6 == 0) {
-			console.log(
-				new Date().toISOString() +
-					' : ' +
-					((100 * i) / inText.length).toFixed(2) +
-					'%'
-			);
-			const mb = process.memoryUsage().heapUsed / (1 << 20);
-			const bytesPerNode =
-				(process.memoryUsage().heapUsed - initMem) / numNodes;
-			console.log(
-				`Used ${mb.toFixed(1)} MB for ${numNodes} nodes (${bytesPerNode.toFixed(
-					2
-				)} bytes/node)`
-			);
-			// console.log(JSON.stringify(root));
-		}
 	}
+	clearInterval(memIntervalId);
+	showMem();
 }
 
 function addToTree(window) {
 	root.count++;
 	let node = root;
+	let level = 0;
 	for (const token of window) {
 		let child = node.children.find((c) => c.token === token);
 		if (child) {
@@ -127,9 +123,11 @@ function addToTree(window) {
 				count: 1,
 			};
 			node.children.push(child);
-			numNodes++;
+			numNodes[level]++;
 		}
+		sumCounts[level]++;
 		node = child;
+		level++;
 	}
 }
 
@@ -170,6 +168,22 @@ function randomChild(node) {
 		sum += child.count;
 	}
 	return node.children[i - 1];
+}
+
+function showMem(numBytesRead) {
+	const percentFinished = numBytesRead
+		? (100 * numBytesRead) / inText.length
+		: 100;
+	console.log(
+		new Date().toISOString() + ' : ' + percentFinished.toFixed(2) + '%'
+	);
+	const mb = process.memoryUsage().heapUsed / (1 << 20);
+	const bytesPerNode = (process.memoryUsage().heapUsed - initMem) / numNodes;
+	console.log(
+		`Used ${mb.toFixed(1)} MB for ${numNodes} nodes (${bytesPerNode.toFixed(
+			2
+		)} bytes/node)`
+	);
 }
 
 main();
