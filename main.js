@@ -105,7 +105,6 @@ async function buildTree() {
 		}
 	}
 
-	clearInterval(memIntervalId);
 	showMem();
 }
 
