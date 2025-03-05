@@ -4,9 +4,10 @@ const maxInputLength = 2e9;
 const fs = require('fs');
 const path = require('path');
 const root = { children: [], count: 0 };
-let initMem;
 const numNodes = [];
 const sumCounts = [];
+let initMem,
+	inText = '';
 
 async function main() {
 	await buildTree();
@@ -30,15 +31,16 @@ function showStats() {
 	// 	}
 	// }
 
-	// console.log('numNodes', numNodes);
-	// console.log('sumCounts', sumCounts);
+	console.log('numNodes', numNodes);
+	console.log('sumCounts', sumCounts);
 	const meanCounts = [];
 	for (let i = 0; i < numNodes.length; i++) {
 		meanCounts[i] = sumCounts[i] / numNodes[i];
 	}
 	console.log('mean counts:');
+	let i = 0;
 	for (const mean of meanCounts) {
-		console.log(`level ${i}: ${mean.toFixed(2)}`);
+		console.log(`level ${i++}: ${mean.toFixed(2)}`);
 	}
 }
 
@@ -60,7 +62,6 @@ function getAllTxtFiles(dir) {
 async function readInput() {
 	const txtFiles = getAllTxtFiles('in/OANC-GrAF/data/written_1');
 
-	let inText = '';
 	for (filePath of txtFiles) {
 		console.log('Reading file:', filePath);
 		inText += fs.readFileSync(filePath, 'utf8');
@@ -73,27 +74,20 @@ async function readInput() {
 		.substring(0, maxInputLength)
 		.replace(/\t/g, ' ')
 		.replace(/\s+/g, ' ');
-
-	// const inText = (await fs.readFile('in/text8.txt'))
-	// 	.toString()
-	// 	.substring(0, maxInputLength);
-	// // fs.writeFile('in/text4M.txt', inText);
-	return inText;
 }
 
 async function buildTree() {
-	const inText = await readInput();
+	await readInput();
 	initMem = process.memoryUsage().heapUsed;
 
 	for (let i = 0; i < maxDepth; i++) {
 		numNodes[i] = 0;
+		sumCounts[i] = 0;
 	}
 
+	console.log('building tree...');
 	let i = 0;
-	const memIntervalId = setInterval(() => {
-		showMem(i);
-	}, 20 * 1000);
-
+	let start = Date.now();
 	const window = [];
 	for (const char of inText) {
 		if (window.length >= maxDepth) {
@@ -103,7 +97,14 @@ async function buildTree() {
 
 		addToTree(window);
 		i++;
+
+		const elapsed = Date.now() - start;
+		if (elapsed > 4000) {
+			showMem(i);
+			start = Date.now();
+		}
 	}
+
 	clearInterval(memIntervalId);
 	showMem();
 }
@@ -145,10 +146,15 @@ function spew() {
 		node = root;
 		for (const token of window) {
 			node = node.children.find((c) => c.token === token);
+			if (!node) {
+				break;
+			}
 		}
-		node = randomChild(node);
-		window.push(node.token);
-		process.stdout.write(node.token);
+		if (node) {
+			node = randomChild(node);
+			window.push(node.token);
+			process.stdout.write(node.token);
+		}
 	}
 
 	// console.log('root.count', root.count);
@@ -171,18 +177,22 @@ function randomChild(node) {
 }
 
 function showMem(numBytesRead) {
-	const percentFinished = numBytesRead
-		? (100 * numBytesRead) / inText.length
-		: 100;
+	const percentFinished =
+		100 * (numBytesRead ? numBytesRead / inText.length : 1);
 	console.log(
 		new Date().toISOString() + ' : ' + percentFinished.toFixed(2) + '%'
 	);
+	let totalNumNodes = 0;
+	for (const n of numNodes) {
+		totalNumNodes += n;
+	}
 	const mb = process.memoryUsage().heapUsed / (1 << 20);
-	const bytesPerNode = (process.memoryUsage().heapUsed - initMem) / numNodes;
+	const bytesPerNode =
+		(process.memoryUsage().heapUsed - initMem) / totalNumNodes;
 	console.log(
-		`Used ${mb.toFixed(1)} MB for ${numNodes} nodes (${bytesPerNode.toFixed(
-			2
-		)} bytes/node)`
+		`Used ${mb.toFixed(
+			1
+		)} MB for ${totalNumNodes} nodes (${bytesPerNode.toFixed(2)} bytes/node)`
 	);
 }
 
