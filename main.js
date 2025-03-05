@@ -1,9 +1,11 @@
-const maxDepth = 16;
-const maxInputLength = 6e6;
+const maxDepth = 10;
+const maxInputLength = 1e9;
 
 const fs = require('fs');
 const path = require('path');
 const root = { children: [], count: 0 };
+let numNodes = 1;
+let initMem;
 
 async function main() {
 	await buildTree();
@@ -79,6 +81,7 @@ async function readInput() {
 
 async function buildTree() {
 	const inText = await readInput();
+	initMem = process.memoryUsage().heapUsed;
 
 	const window = [];
 	let i = 0;
@@ -98,7 +101,13 @@ async function buildTree() {
 					'%'
 			);
 			const mb = process.memoryUsage().heapUsed / (1 << 20);
-			console.log('Memory used:', mb.toFixed(1), 'MB');
+			const bytesPerNode =
+				(process.memoryUsage().heapUsed - initMem) / numNodes;
+			console.log(
+				`Used ${mb.toFixed(1)} MB for ${numNodes} nodes (${bytesPerNode.toFixed(
+					2
+				)} bytes/node)`
+			);
 			// console.log(JSON.stringify(root));
 		}
 	}
@@ -118,6 +127,7 @@ function addToTree(window) {
 				count: 1,
 			};
 			node.children.push(child);
+			numNodes++;
 		}
 		node = child;
 	}
@@ -132,7 +142,7 @@ function spew() {
 	}
 	process.stdout.write(window.join(''));
 
-	for (let i = 0; i < 2000; i++) {
+	while (true) {
 		window.shift();
 		node = root;
 		for (const token of window) {
