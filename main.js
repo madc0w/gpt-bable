@@ -1,5 +1,5 @@
-const maxDepth = 10;
-const maxInputLength = 1e9;
+const maxDepth = 12;
+const maxInputLength = 2e9;
 
 const fs = require('fs');
 const path = require('path');
