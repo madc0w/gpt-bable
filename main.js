@@ -3,7 +3,7 @@ const maxInputLength = 1e9;
 
 const fs = require('fs');
 const path = require('path');
-const root = { children: [], count: 0 };
+const root = { c: [], n: 0 };
 let numNodes = 1;
 let initMem;
 
@@ -21,9 +21,9 @@ function showStats() {
 
 	function recurse(node, depth = 0) {
 		numNodes[depth] = (numNodes[depth] || 0) + 1;
-		sumCounts[depth] = (sumCounts[depth] || 0) + node.count;
-		if (node.children.length) {
-			for (const child of node.children) {
+		sumCounts[depth] = (sumCounts[depth] || 0) + node.n;
+		if (node.c.length) {
+			for (const child of node.c) {
 				recurse(child, depth + 1);
 			}
 		}
@@ -114,19 +114,19 @@ async function buildTree() {
 }
 
 function addToTree(window) {
-	root.count++;
+	root.n++;
 	let node = root;
 	for (const token of window) {
-		let child = node.children.find((c) => c.token === token);
+		let child = node.c.find((c) => c.t === token);
 		if (child) {
-			child.count++;
+			child.n++;
 		} else {
 			child = {
-				token,
-				children: [],
-				count: 1,
+				t: token,
+				c: [],
+				n: 1,
 			};
-			node.children.push(child);
+			node.c.push(child);
 			numNodes++;
 		}
 		node = child;
@@ -136,9 +136,9 @@ function addToTree(window) {
 function spew() {
 	const window = [];
 	let node = root;
-	while (node.children?.length) {
+	while (node.c?.length) {
 		node = randomChild(node);
-		window.push(node.token);
+		window.push(node.t);
 	}
 	process.stdout.write(window.join(''));
 
@@ -146,30 +146,30 @@ function spew() {
 		window.shift();
 		node = root;
 		for (const token of window) {
-			node = node.children.find((c) => c.token === token);
+			node = node.c.find((c) => c.t === token);
 		}
 		node = randomChild(node);
-		window.push(node.token);
-		process.stdout.write(node.token);
+		window.push(node.t);
+		process.stdout.write(node.t);
 	}
 
-	// console.log('root.count', root.count);
+	// console.log('root.n', root.n);
 	// let sum = 0;
-	// root.children.forEach((child) => {
-	// 	sum += child.count;
+	// root.c.forEach((child) => {
+	// 	sum += child.n;
 	// });
 	// console.log('sum', sum);
 }
 
 function randomChild(node) {
-	let r = Math.max(Math.random() * node.count, 1);
+	let r = Math.max(Math.random() * node.n, 1);
 	let sum = 0;
 	let i = 0;
 	while (sum < r) {
-		const child = node.children[i++];
-		sum += child.count;
+		const child = node.c[i++];
+		sum += child.n;
 	}
-	return node.children[i - 1];
+	return node.c[i - 1];
 }
 
 main();
